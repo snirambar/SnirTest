@@ -106,42 +106,58 @@ An intelligent attendee outreach system for MWC Barcelona 2026 that scrapes, enr
 | | Portugal | 762 |
 | | Poland | 761 |
 
+### API Filter Discovery
+
+**Key Finding:** All filters (Company Main Activity AND Area of Responsibility) are combined into a single array called `filterExclusiveInterests`. Values are passed as strings.
+
+**Example Request Body:**
+```json
+{
+  "random": false,
+  "keyword": "",
+  "page": 0,
+  "filterExclusiveInterests": ["1221", "1244"],
+  "filterEventRegister": ["28"],
+  "filterCountries": ["932"]
+}
+```
+
 ### Bucket 1: Partners
 
-**Filter Type:** Company Main Activity
+**Filter Type:** Company Main Activity (via `filterExclusiveInterests`)
 
-| Activity | API Code (TBD) |
-|----------|----------------|
-| System Integrators | TBD |
-| Cloud Services | TBD |
-| Software Development | TBD |
-| Consultancy | TBD |
+| Activity | API Code | Status |
+|----------|----------|--------|
+| SYSTEMS INTEGRATOR | `1244` | ✅ Confirmed |
+| Cloud Services | TBD | ⏳ Need to capture |
+| Software Development | TBD | ⏳ Need to capture |
+| Consultancy | TBD | ⏳ Need to capture |
 
 ### Bucket 2: Technical Prospects
 
-**Filter Type:** Area of Responsibility
+**Filter Type:** Area of Responsibility (via `filterExclusiveInterests`)
 
-| Area | API Code (TBD) |
-|------|----------------|
-| Technical Engineering | TBD |
-| Research and Development | TBD |
-| Software Development | TBD |
-| Government | TBD |
-| Data and Analytics | TBD |
-| Enterprise IT | TBD |
+| Area | API Code | Status |
+|------|----------|--------|
+| TECHNICAL / ENGINEERING | `1221` | ✅ Confirmed |
+| Research and Development | TBD | ⏳ Need to capture |
+| Software Development | TBD | ⏳ Need to capture |
+| Government | TBD | ⏳ Need to capture |
+| Data and Analytics | TBD | ⏳ Need to capture |
+| Enterprise IT | TBD | ⏳ Need to capture |
 
 ### Bucket 3: Product / Innovation
 
-**Filter Type:** Area of Responsibility
+**Filter Type:** Area of Responsibility (via `filterExclusiveInterests`)
 
-| Area | API Code (TBD) |
-|------|----------------|
-| Strategy | TBD |
-| Product Management | TBD |
-| Client/Customer Service | TBD |
-| Operations | TBD |
-| Government Regulatory | TBD |
-| Innovation | TBD |
+| Area | API Code | Status |
+|------|----------|--------|
+| Strategy | TBD | ⏳ Need to capture |
+| Product Management | TBD | ⏳ Need to capture |
+| Client/Customer Service | TBD | ⏳ Need to capture |
+| Operations | TBD | ⏳ Need to capture |
+| Government Regulatory | TBD | ⏳ Need to capture |
+| Innovation | TBD | ⏳ Need to capture |
 
 ---
 
