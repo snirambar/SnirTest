@@ -128,10 +128,15 @@ An intelligent attendee outreach system for MWC Barcelona 2026 that scrapes, enr
 
 | Activity | API Code | Status |
 |----------|----------|--------|
-| SYSTEMS INTEGRATOR | `1244` | ✅ Confirmed |
-| Cloud Services | TBD | ⏳ Need to capture |
-| Software Development | TBD | ⏳ Need to capture |
-| Consultancy | TBD | ⏳ Need to capture |
+| SYSTEMS INTEGRATOR | `1244` | ✅ |
+| CLOUD SERVICES | `1272` | ✅ |
+| SOFTWARE DEVELOPMENT | `1273` | ✅ |
+| CONSULTANCY | `1246` | ✅ |
+
+**Combined filter array for Partners bucket:**
+```json
+"filterExclusiveInterests": ["1244", "1272", "1273", "1246"]
+```
 
 ### Bucket 2: Technical Prospects
 
@@ -139,12 +144,17 @@ An intelligent attendee outreach system for MWC Barcelona 2026 that scrapes, enr
 
 | Area | API Code | Status |
 |------|----------|--------|
-| TECHNICAL / ENGINEERING | `1221` | ✅ Confirmed |
-| Research and Development | TBD | ⏳ Need to capture |
-| Software Development | TBD | ⏳ Need to capture |
-| Government | TBD | ⏳ Need to capture |
-| Data and Analytics | TBD | ⏳ Need to capture |
-| Enterprise IT | TBD | ⏳ Need to capture |
+| TECHNICAL / ENGINEERING | `1221` | ✅ |
+| RESEARCH / DEVELOPMENT | `1228` | ✅ |
+| SOFTWARE DEVELOPMENT | `1230` | ✅ |
+| GOVERNMENT / REGULATORY | `1237` | ✅ |
+| DATA & ANALYTICS | `1240` | ✅ |
+| ENTERPRISE IT (incl. Network Security) | `1308` | ✅ |
+
+**Combined filter array for Technical bucket:**
+```json
+"filterExclusiveInterests": ["1221", "1228", "1230", "1237", "1240", "1308"]
+```
 
 ### Bucket 3: Product / Innovation
 
@@ -152,12 +162,17 @@ An intelligent attendee outreach system for MWC Barcelona 2026 that scrapes, enr
 
 | Area | API Code | Status |
 |------|----------|--------|
-| Strategy | TBD | ⏳ Need to capture |
-| Product Management | TBD | ⏳ Need to capture |
-| Client/Customer Service | TBD | ⏳ Need to capture |
-| Operations | TBD | ⏳ Need to capture |
-| Government Regulatory | TBD | ⏳ Need to capture |
-| Innovation | TBD | ⏳ Need to capture |
+| STRATEGY | `1222` | ✅ |
+| PRODUCT MANAGEMENT | `1225` | ✅ |
+| CLIENT / CUSTOMER SERVICE | `1226` | ✅ |
+| OPERATIONS | `1236` | ✅ |
+| GOVERNMENT / REGULATORY | `1237` | ✅ |
+| INNOVATION | `2625` | ✅ |
+
+**Combined filter array for Product/Innovation bucket:**
+```json
+"filterExclusiveInterests": ["1222", "1225", "1226", "1236", "1237", "2625"]
+```
 
 ---
 
