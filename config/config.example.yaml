@@ -1,0 +1,45 @@
+# MWC Barcelona Attendee Scraper - Configuration Example
+# Copy this file to config.yaml and fill in your values
+
+# JWT Token for MWC API authentication
+# Get this from browser DevTools → Network tab → Jemex-Authorization header
+jwt_token: "YOUR_JWT_TOKEN_HERE"
+
+# Apollo API key for company enrichment
+apollo_api_key: "YOUR_APOLLO_API_KEY_HERE"
+
+# Scraping settings
+scraping:
+  # Delay between API requests (seconds)
+  delay: 1.0
+
+  # Default countries to scrape (use group names or country codes)
+  # Groups: north_america, israel, europe, all
+  default_countries: "all"
+
+  # Default buckets to scrape
+  # Options: partners, technical, product_innovation
+  default_buckets:
+    - partners
+    - technical
+    - product_innovation
+
+# Database
+database:
+  path: "data/mwc_attendees.db"
+
+# Logging
+logging:
+  level: "INFO"
+  file: "logs/scraper.log"
+
+# Notifications (for future use)
+notifications:
+  slack:
+    enabled: false
+    webhook_url: ""
+
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
