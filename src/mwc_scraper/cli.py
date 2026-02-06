@@ -19,8 +19,12 @@ src_path = Path(__file__).parent.parent.parent
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
+import csv
+import sqlite3
+from datetime import datetime
+
 from mwc_scraper.scraper import MWCScraper, quick_test
-from mwc_scraper.database import init_database, get_prospect_stats
+from mwc_scraper.database import init_database, get_prospect_stats, get_db_path
 from mwc_scraper.config import BUCKETS, COUNTRIES, COUNTRY_GROUPS
 
 
@@ -161,6 +165,102 @@ def cmd_init(args):
     print("Database initialized successfully!")
 
 
+def cmd_export(args):
+    """Export prospects to CSV."""
+    init_database()
+
+    output_file = args.output or f"attendees_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+
+    conn = sqlite3.connect(get_db_path())
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Build query
+    query = "SELECT * FROM prospects WHERE 1=1"
+    params = []
+
+    if args.bucket:
+        query += " AND bucket = ?"
+        params.append(args.bucket)
+
+    if args.country:
+        query += " AND country = ?"
+        params.append(args.country.upper())
+
+    if args.status:
+        query += " AND status = ?"
+        params.append(args.status)
+
+    query += " ORDER BY first_seen_at DESC"
+
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("No prospects found matching criteria.")
+        conn.close()
+        return
+
+    # Write CSV
+    fieldnames = ["uuid", "full_name", "job_title", "company_name", "bucket",
+                  "country", "mwc_profile_url", "status", "first_seen_at"]
+
+    with open(output_file, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for row in rows:
+            writer.writerow({field: row[field] for field in fieldnames})
+
+    conn.close()
+
+    print(f"Exported {len(rows)} prospects to: {output_file}")
+
+
+def cmd_new(args):
+    """Show new prospects since last run or given date."""
+    init_database()
+
+    conn = sqlite3.connect(get_db_path())
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get prospects from last 24 hours by default
+    if args.since:
+        since = args.since
+    else:
+        since = (datetime.now().replace(hour=0, minute=0, second=0)).isoformat()
+
+    query = """
+        SELECT full_name, job_title, company_name, bucket, country, first_seen_at
+        FROM prospects
+        WHERE first_seen_at > ?
+        ORDER BY first_seen_at DESC
+    """
+
+    cursor.execute(query, (since,))
+    rows = cursor.fetchall()
+
+    if not rows:
+        print(f"No new prospects since {since}")
+        conn.close()
+        return
+
+    print(f"\nNew Prospects Since {since}")
+    print("=" * 80)
+
+    for row in rows:
+        print(f"\n{row['full_name']}")
+        print(f"  {row['job_title']} @ {row['company_name']}")
+        print(f"  Bucket: {row['bucket']} | Country: {row['country']}")
+        print(f"  Added: {row['first_seen_at']}")
+
+    print(f"\n{'-' * 80}")
+    print(f"Total: {len(rows)} new prospects")
+
+    conn.close()
+
+
 def _parse_countries(countries_arg: str) -> list:
     """Parse countries argument into list of codes."""
     countries = []
@@ -255,6 +355,18 @@ Examples:
     # Init command
     init_parser = subparsers.add_parser("init", help="Initialize database")
 
+    # Export command
+    export_parser = subparsers.add_parser("export", help="Export prospects to CSV")
+    export_parser.add_argument("--output", "-o", help="Output file path (default: attendees_YYYYMMDD.csv)")
+    export_parser.add_argument("--bucket", "-b", choices=list(BUCKETS.keys()),
+                               help="Filter by bucket")
+    export_parser.add_argument("--country", "-c", help="Filter by country")
+    export_parser.add_argument("--status", "-s", help="Filter by status")
+
+    # New command
+    new_parser = subparsers.add_parser("new", help="Show new prospects since date")
+    new_parser.add_argument("--since", "-s", help="Show prospects since date (YYYY-MM-DD)")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -270,6 +382,8 @@ Examples:
         "stats": cmd_stats,
         "list-filters": cmd_list_filters,
         "init": cmd_init,
+        "export": cmd_export,
+        "new": cmd_new,
     }
 
     handler = commands.get(args.command)
