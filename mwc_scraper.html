@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MWC Barcelona Attendee Scraper</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        textarea { height: 80px; font-family: monospace; font-size: 12px; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .progress {
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 24px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            background: #28a745;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        .stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { font-size: 12px; color: #666; }
+        .help {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .help ol { margin: 10px 0 0 20px; padding: 0; }
+        .help li { margin: 5px 0; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>MWC Barcelona Attendee Scraper</h1>
+    <p class="subtitle">Scrape attendees by bucket and country, export to CSV</p>
+
+    <div class="help">
+        <strong>How to get your JWT Token:</strong>
+        <ol>
+            <li>Go to <a href="https://www.mwcbarcelona.com/mymwc/search" target="_blank">mwcbarcelona.com/mymwc/search</a></li>
+            <li>Open DevTools (F12 or Cmd+Option+I)</li>
+            <li>Go to Network tab</li>
+            <li>Apply any filter on the page</li>
+            <li>Click the <code>search</code> request → Headers</li>
+            <li>Copy the <code>Jemex-Authorization</code> value</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <label for="token">JWT Token</label>
+        <textarea id="token" placeholder="Paste your Jemex-Authorization token here (starts with eyJ...)"></textarea>
+
+        <label for="bucket">Filter Bucket</label>
+        <select id="bucket">
+            <option value="all">All Buckets</option>
+            <option value="partners">Partners (System Integrators, Cloud, Software Dev, Consultancy)</option>
+            <option value="technical">Technical (Engineering, R&D, Software Dev, Data Analytics)</option>
+            <option value="product_innovation">Product/Innovation (Strategy, Product Mgmt, Operations)</option>
+        </select>
+
+        <label for="countries">Countries</label>
+        <select id="countries">
+            <option value="all">All Countries</option>
+            <option value="north_america">North America (US, Canada)</option>
+            <option value="israel">Israel</option>
+            <option value="europe">Europe (UK, Germany, France, etc.)</option>
+            <option value="us">United States only</option>
+            <option value="uk">United Kingdom only</option>
+            <option value="germany">Germany only</option>
+        </select>
+
+        <button id="scrapeBtn" onclick="startScrape()">Start Scraping</button>
+    </div>
+
+    <div class="progress" id="progress">
+        <div class="progress-bar" id="progressBar">0%</div>
+    </div>
+
+    <div class="stats" id="stats">
+        <div class="stat">
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">Total Found</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="statPages">0</div>
+            <div class="stat-label">Pages Scraped</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="statTime">0s</div>
+            <div class="stat-label">Time Elapsed</div>
+        </div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        // Filter codes
+        const BUCKETS = {
+            partners: ["1244", "1272", "1273", "1246"],
+            technical: ["1221", "1228", "1230", "1237", "1240", "1308"],
+            product_innovation: ["1222", "1225", "1226", "1236", "1237", "2625"]
+        };
+
+        const COUNTRIES = {
+            us: ["932"],
+            canada: ["738"],
+            israel: ["811"],
+            uk: ["777"],
+            germany: ["757"],
+            france: ["775"],
+            spain: ["768"],
+            italy: ["813"],
+            netherlands: ["837"],
+            sweden: ["770"],
+            switzerland: ["772"],
+            belgium: ["725"],
+            austria: ["719"],
+            denmark: ["752"],
+            norway: ["843"],
+            finland: ["756"],
+            ireland: ["810"],
+            portugal: ["762"],
+            poland: ["761"]
+        };
+
+        const COUNTRY_GROUPS = {
+            north_america: [...COUNTRIES.us, ...COUNTRIES.canada],
+            israel: COUNTRIES.israel,
+            europe: [
+                ...COUNTRIES.uk, ...COUNTRIES.germany, ...COUNTRIES.france,
+                ...COUNTRIES.spain, ...COUNTRIES.italy, ...COUNTRIES.netherlands,
+                ...COUNTRIES.sweden, ...COUNTRIES.switzerland, ...COUNTRIES.belgium,
+                ...COUNTRIES.austria, ...COUNTRIES.denmark, ...COUNTRIES.norway,
+                ...COUNTRIES.finland, ...COUNTRIES.ireland, ...COUNTRIES.portugal,
+                ...COUNTRIES.poland
+            ],
+            all: Object.values(COUNTRIES).flat()
+        };
+
+        const API_URL = "https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search";
+
+        let isRunning = false;
+        let allAttendees = [];
+        let startTime;
+
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logEl.innerHTML += `[${time}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateProgress(current, total, message) {
+            const pct = Math.round((current / total) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressBar').textContent = message || `${pct}%`;
+        }
+
+        function updateStats(total, pages) {
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statPages').textContent = pages;
+            const elapsed = Math.round((Date.now() - startTime) / 1000);
+            document.getElementById('statTime').textContent = elapsed + 's';
+        }
+
+        async function fetchPage(token, filters, countries, page) {
+            const body = {
+                random: false,
+                keyword: "",
+                page: page,
+                filterEventRegister: ["28"]
+            };
+
+            if (filters.length > 0) {
+                body.filterExclusiveInterests = filters;
+            }
+            if (countries.length > 0) {
+                body.filterCountries = countries;
+            }
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Jemex-Authorization': token
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Token expired. Please get a new JWT token.');
+                }
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            return response.json();
+        }
+
+        function parseAttendee(item, bucket, countryName) {
+            return {
+                uuid: item.uuid || '',
+                first_name: item.name || '',
+                last_name: item.surname || '',
+                full_name: `${item.name || ''} ${item.surname || ''}`.trim(),
+                job_title: item.position || '',
+                company_name: item.company || '',
+                bucket: bucket,
+                country: countryName,
+                profile_url: item.uuid ? `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid}` : '',
+                scraped_at: new Date().toISOString()
+            };
+        }
+
+        function downloadCSV(data) {
+            if (data.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row =>
+                    headers.map(h => {
+                        let val = row[h] || '';
+                        // Escape quotes and wrap in quotes if contains comma
+                        val = String(val).replace(/"/g, '""');
+                        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                            val = `"${val}"`;
+                        }
+                        return val;
+                    }).join(',')
+                )
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            link.href = url;
+            link.download = `mwc_attendees_${date}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function startScrape() {
+            if (isRunning) return;
+
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                alert('Please enter your JWT token');
+                return;
+            }
+
+            const bucketSelect = document.getElementById('bucket').value;
+            const countrySelect = document.getElementById('countries').value;
+
+            // Get filters
+            let filters = [];
+            let bucketName = bucketSelect;
+            if (bucketSelect === 'all') {
+                filters = [...BUCKETS.partners, ...BUCKETS.technical, ...BUCKETS.product_innovation];
+                bucketName = 'all';
+            } else {
+                filters = BUCKETS[bucketSelect] || [];
+            }
+
+            // Get countries
+            let countries = [];
+            let countryName = countrySelect;
+            if (countrySelect === 'all') {
+                countries = COUNTRY_GROUPS.all;
+            } else if (COUNTRY_GROUPS[countrySelect]) {
+                countries = COUNTRY_GROUPS[countrySelect];
+            } else if (COUNTRIES[countrySelect]) {
+                countries = COUNTRIES[countrySelect];
+            }
+
+            // Setup UI
+            isRunning = true;
+            allAttendees = [];
+            startTime = Date.now();
+            document.getElementById('scrapeBtn').disabled = true;
+            document.getElementById('scrapeBtn').textContent = 'Scraping...';
+            document.getElementById('progress').style.display = 'block';
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('log').style.display = 'block';
+            document.getElementById('log').innerHTML = '';
+
+            log(`Starting scrape: bucket=${bucketName}, countries=${countrySelect}`);
+            log(`Filters: ${filters.join(', ')}`);
+            log(`Country codes: ${countries.join(', ')}`);
+
+            try {
+                // First request to get total
+                log('Fetching first page...');
+                const firstPage = await fetchPage(token, filters, countries, 0);
+                const totalElements = firstPage.totalElements;
+                const totalPages = firstPage.totalPages;
+
+                log(`Found ${totalElements} attendees across ${totalPages} pages`);
+
+                if (totalElements === 0) {
+                    log('No attendees found with these filters');
+                    return;
+                }
+
+                // Process first page
+                for (const item of firstPage.content) {
+                    allAttendees.push(parseAttendee(item, bucketName, countrySelect));
+                }
+                updateStats(allAttendees.length, 1);
+                updateProgress(1, totalPages, `Page 1/${totalPages}`);
+
+                // Fetch remaining pages
+                for (let page = 1; page < totalPages; page++) {
+                    await new Promise(r => setTimeout(r, 1000)); // Rate limit
+
+                    log(`Fetching page ${page + 1}/${totalPages}...`);
+                    const pageData = await fetchPage(token, filters, countries, page);
+
+                    for (const item of pageData.content) {
+                        allAttendees.push(parseAttendee(item, bucketName, countrySelect));
+                    }
+
+                    updateStats(allAttendees.length, page + 1);
+                    updateProgress(page + 1, totalPages, `Page ${page + 1}/${totalPages}`);
+                }
+
+                log(`Scraping complete! Total: ${allAttendees.length} attendees`);
+                log('Downloading CSV...');
+
+                downloadCSV(allAttendees);
+
+                log('Done! CSV downloaded.');
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`);
+                alert(`Error: ${error.message}`);
+            } finally {
+                isRunning = false;
+                document.getElementById('scrapeBtn').disabled = false;
+                document.getElementById('scrapeBtn').textContent = 'Start Scraping';
+            }
+        }
+    </script>
+</body>
+</html>
