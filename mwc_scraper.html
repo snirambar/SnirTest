@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 700px;
+            max-width: 900px;
             margin: 40px auto;
             padding: 20px;
             background: #f5f5f5;
@@ -23,76 +23,16 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
-        input, select, textarea {
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 12px;
+            font-family: monospace;
+            height: 60px;
             margin-bottom: 15px;
         }
-        textarea { height: 80px; font-family: monospace; font-size: 12px; }
-        .btn-row { display: flex; gap: 10px; }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            flex: 1;
-        }
-        button:hover { background: #0056b3; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-test { background: #6c757d; flex: 0 0 auto; }
-        .btn-test:hover { background: #545b62; }
-        .progress {
-            background: #e9ecef;
-            border-radius: 4px;
-            height: 24px;
-            margin: 15px 0;
-            overflow: hidden;
-            display: none;
-        }
-        .progress-bar {
-            background: #28a745;
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-        }
-        .log {
-            background: #1e1e1e;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-        .log.error-log { color: #ff6b6b; }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-            display: none;
-        }
-        .stat {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
-        .stat-label { font-size: 12px; color: #666; }
         .help {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -103,20 +43,92 @@
         }
         .help ol { margin: 10px 0 0 20px; padding: 0; }
         .help li { margin: 5px 0; }
-        .status { padding: 10px; border-radius: 4px; margin-bottom: 15px; display: none; }
-        .status.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; display: block; }
-        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; display: block; }
+
+        /* Button Grid */
+        h3 { margin: 20px 0 10px 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .scrape-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .scrape-btn:hover { background: #0056b3; }
+        .scrape-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .scrape-btn.country { background: #28a745; }
+        .scrape-btn.country:hover { background: #1e7e34; }
+        .scrape-btn.interest { background: #6f42c1; }
+        .scrape-btn.interest:hover { background: #5a32a3; }
+
+        /* Status */
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 14px;
+        }
+        .status.show { display: block; }
+        .status.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .status.info { background: #cce5ff; border: 1px solid #b8daff; color: #004085; }
+
+        /* Progress */
+        .progress {
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 30px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: none;
+        }
+        .progress.show { display: block; }
+        .progress-bar {
+            background: #28a745;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Log */
+        .log {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .log.show { display: block; }
     </style>
 </head>
 <body>
     <h1>MWC Barcelona Attendee Scraper</h1>
-    <p class="subtitle">Scrape attendees by bucket and country, export to CSV</p>
+    <p class="subtitle">Click a button to scrape that specific filter. ONE filter per scrape (matches how MWC works).</p>
 
     <div class="help">
         <strong>How to get your JWT Token:</strong>
         <ol>
             <li>Go to <a href="https://www.mwcbarcelona.com/mymwc/search" target="_blank">mwcbarcelona.com/mymwc/search</a></li>
-            <li>Open DevTools (F12 or Cmd+Option+I)</li>
+            <li>Open DevTools (Cmd+Option+I)</li>
             <li>Go to Network tab</li>
             <li>Apply any filter on the page</li>
             <li>Click the <code>search</code> request → Headers</li>
@@ -124,337 +136,231 @@
         </ol>
     </div>
 
-    <div id="status" class="status"></div>
+    <div class="section">
+        <label for="token">JWT Token (paste here first)</label>
+        <textarea id="token" placeholder="Paste your Jemex-Authorization token here..."></textarea>
+
+        <div id="status" class="status"></div>
+        <div id="progress" class="progress"><div id="progressBar" class="progress-bar">0%</div></div>
+        <div id="log" class="log"></div>
+    </div>
 
     <div class="section">
-        <label for="token">JWT Token</label>
-        <textarea id="token" placeholder="Paste your Jemex-Authorization token here (starts with eyJ...)"></textarea>
+        <h3>🌍 Scrape by COUNTRY (all attendees from that country)</h3>
+        <div class="btn-grid" id="countryButtons"></div>
 
-        <label for="bucket">Filter Bucket</label>
-        <select id="bucket">
-            <option value="partners">Partners (System Integrators, Cloud, Software Dev, Consultancy)</option>
-            <option value="technical">Technical (Engineering, R&D, Software Dev, Data Analytics)</option>
-            <option value="product_innovation">Product/Innovation (Strategy, Product Mgmt, Operations)</option>
-        </select>
+        <h3>💼 Scrape by INTEREST - Partners</h3>
+        <div class="btn-grid" id="partnerButtons"></div>
 
-        <label for="countries">Countries</label>
-        <select id="countries">
-            <option value="us">United States</option>
-            <option value="israel">Israel</option>
-            <option value="uk">United Kingdom</option>
-            <option value="germany">Germany</option>
-            <option value="france">France</option>
-            <option value="canada">Canada</option>
-            <option value="spain">Spain</option>
-            <option value="italy">Italy</option>
-            <option value="netherlands">Netherlands</option>
-            <option value="sweden">Sweden</option>
-            <option value="switzerland">Switzerland</option>
-            <option value="belgium">Belgium</option>
-            <option value="austria">Austria</option>
-            <option value="denmark">Denmark</option>
-            <option value="norway">Norway</option>
-            <option value="finland">Finland</option>
-            <option value="ireland">Ireland</option>
-            <option value="portugal">Portugal</option>
-            <option value="poland">Poland</option>
-        </select>
+        <h3>🔧 Scrape by INTEREST - Technical</h3>
+        <div class="btn-grid" id="technicalButtons"></div>
 
-        <div class="btn-row">
-            <button class="btn-test" onclick="testConnection()">Test</button>
-            <button id="scrapeBtn" onclick="startScrape()">Start Scraping</button>
-        </div>
+        <h3>💡 Scrape by INTEREST - Product/Innovation</h3>
+        <div class="btn-grid" id="productButtons"></div>
     </div>
-
-    <div class="progress" id="progress">
-        <div class="progress-bar" id="progressBar">0%</div>
-    </div>
-
-    <div class="stats" id="stats">
-        <div class="stat">
-            <div class="stat-value" id="statTotal">0</div>
-            <div class="stat-label">Total Found</div>
-        </div>
-        <div class="stat">
-            <div class="stat-value" id="statPages">0</div>
-            <div class="stat-label">Pages Scraped</div>
-        </div>
-        <div class="stat">
-            <div class="stat-value" id="statTime">0s</div>
-            <div class="stat-label">Time Elapsed</div>
-        </div>
-    </div>
-
-    <div class="log" id="log"></div>
 
     <script>
-        // Filter codes - CONFIRMED from MWC website
-        const BUCKETS = {
-            partners: ["1244", "1272", "1273", "1246"],
-            technical: ["1221", "1228", "1230", "1237", "1240", "1308"],
-            product_innovation: ["1222", "1225", "1226", "1236", "1237", "2625"]
-        };
-
+        // EXACT codes from MWC website
         const COUNTRIES = {
-            us: "932",
-            canada: "738",
-            israel: "811",
-            uk: "777",
-            germany: "757",
-            france: "775",
-            spain: "768",
-            italy: "813",
-            netherlands: "837",
-            sweden: "770",
-            switzerland: "772",
-            belgium: "725",
-            austria: "719",
-            denmark: "752",
-            norway: "843",
-            finland: "756",
-            ireland: "810",
-            portugal: "762",
-            poland: "761"
+            "Israel": "811",
+            "United States": "932",
+            "United Kingdom": "777",
+            "Germany": "757",
+            "France": "775",
+            "Spain": "768",
+            "Canada": "738",
+            "Italy": "813",
+            "Netherlands": "837",
+            "Sweden": "770",
+            "Switzerland": "772",
+            "Belgium": "725"
         };
 
-        const COUNTRY_NAMES = {
-            us: "United States",
-            canada: "Canada",
-            israel: "Israel",
-            uk: "United Kingdom",
-            germany: "Germany",
-            france: "France",
-            spain: "Spain",
-            italy: "Italy",
-            netherlands: "Netherlands",
-            sweden: "Sweden",
-            switzerland: "Switzerland",
-            belgium: "Belgium",
-            austria: "Austria",
-            denmark: "Denmark",
-            norway: "Norway",
-            finland: "Finland",
-            ireland: "Ireland",
-            portugal: "Portugal",
-            poland: "Poland"
+        const PARTNERS = {
+            "Systems Integrator": "1244",
+            "Cloud Services": "1272",
+            "Software Development": "1273",
+            "Consultancy": "1246"
+        };
+
+        const TECHNICAL = {
+            "Technical/Engineering": "1221",
+            "R&D": "1228",
+            "Software Dev": "1230",
+            "Data & Analytics": "1240",
+            "Enterprise IT": "1308"
+        };
+
+        const PRODUCT = {
+            "Strategy": "1222",
+            "Product Management": "1225",
+            "Operations": "1236",
+            "Innovation": "2625"
         };
 
         const API_URL = "https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search";
-
         let isRunning = false;
-        let allAttendees = [];
-        let startTime;
 
-        function showStatus(message, isError = false) {
+        // Create buttons on load
+        document.addEventListener('DOMContentLoaded', () => {
+            createButtons('countryButtons', COUNTRIES, 'country', 'filterCountries');
+            createButtons('partnerButtons', PARTNERS, 'interest', 'filterExclusiveInterests');
+            createButtons('technicalButtons', TECHNICAL, 'interest', 'filterExclusiveInterests');
+            createButtons('productButtons', PRODUCT, 'interest', 'filterExclusiveInterests');
+        });
+
+        function createButtons(containerId, items, type, filterKey) {
+            const container = document.getElementById(containerId);
+            for (const [name, code] of Object.entries(items)) {
+                const btn = document.createElement('button');
+                btn.className = `scrape-btn ${type}`;
+                btn.textContent = name;
+                btn.onclick = () => scrape(name, code, filterKey);
+                container.appendChild(btn);
+            }
+        }
+
+        function showStatus(msg, type = 'info') {
             const el = document.getElementById('status');
-            el.textContent = message;
-            el.className = 'status ' + (isError ? 'error' : 'success');
+            el.textContent = msg;
+            el.className = `status show ${type}`;
         }
 
-        function log(message, isError = false) {
-            const logEl = document.getElementById('log');
-            const time = new Date().toLocaleTimeString();
-            const color = isError ? '#ff6b6b' : '#0f0';
-            logEl.innerHTML += `<span style="color:${color}">[${time}] ${message}</span>\n`;
-            logEl.scrollTop = logEl.scrollHeight;
+        function log(msg) {
+            const el = document.getElementById('log');
+            el.classList.add('show');
+            el.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+            el.scrollTop = el.scrollHeight;
         }
 
-        function updateProgress(current, total, message) {
+        function updateProgress(current, total) {
+            const el = document.getElementById('progress');
+            const bar = document.getElementById('progressBar');
+            el.classList.add('show');
             const pct = Math.round((current / total) * 100);
-            document.getElementById('progressBar').style.width = pct + '%';
-            document.getElementById('progressBar').textContent = message || `${pct}%`;
+            bar.style.width = pct + '%';
+            bar.textContent = `${current}/${total} pages`;
         }
 
-        function updateStats(total, pages) {
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statPages').textContent = pages;
-            const elapsed = Math.round((Date.now() - startTime) / 1000);
-            document.getElementById('statTime').textContent = elapsed + 's';
-        }
-
-        async function fetchPage(token, filters, countryCode, page) {
-            // Build request body - one filter at a time, one country at a time
-            const body = {
-                random: false,
-                keyword: "",
-                page: page,
-                filterEventRegister: ["28"],
-                filterExclusiveInterests: filters,
-                filterCountries: [countryCode]
-            };
-
-            console.log('Request body:', JSON.stringify(body, null, 2));
-
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Jemex-Authorization': token
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!response.ok) {
-                const text = await response.text();
-                console.error('API Response:', response.status, text);
-                if (response.status === 401) {
-                    throw new Error('Token expired. Please get a new JWT token from DevTools.');
-                }
-                if (response.status === 500) {
-                    throw new Error('Server error (500). Try a different filter combination or get a fresh token.');
-                }
-                throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
+        async function scrape(name, code, filterKey) {
+            if (isRunning) {
+                alert('Already scraping. Please wait.');
+                return;
             }
 
-            return response.json();
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                showStatus('Please paste your JWT token first!', 'error');
+                return;
+            }
+
+            isRunning = true;
+            document.getElementById('log').innerHTML = '';
+            showStatus(`Scraping: ${name}...`, 'info');
+            log(`Starting scrape for: ${name} (code: ${code})`);
+
+            const allResults = [];
+            let page = 0;
+            let totalPages = 1;
+
+            try {
+                while (page < totalPages) {
+                    // Build request - ONLY ONE FILTER, exactly like MWC website
+                    const body = {
+                        random: false,
+                        keyword: "",
+                        page: page,
+                        filterEventRegister: ["28"]
+                    };
+                    body[filterKey] = [code];
+
+                    log(`Fetching page ${page + 1}...`);
+                    console.log('Request:', JSON.stringify(body));
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Jemex-Authorization': token
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) throw new Error('Token expired - get a new one');
+                        if (response.status === 500) throw new Error('Server error 500 - try a different filter or refresh token');
+                        throw new Error(`API error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (page === 0) {
+                        totalPages = data.totalPages || 1;
+                        log(`Found ${data.totalElements} total attendees (${totalPages} pages)`);
+                    }
+
+                    // Process results
+                    for (const item of data.content || []) {
+                        allResults.push({
+                            uuid: item.uuid || '',
+                            first_name: item.name || '',
+                            last_name: item.surname || '',
+                            full_name: `${item.name || ''} ${item.surname || ''}`.trim(),
+                            job_title: item.position || '',
+                            company: item.company || '',
+                            filter_used: name,
+                            profile_url: `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid}`,
+                            scraped_at: new Date().toISOString()
+                        });
+                    }
+
+                    updateProgress(page + 1, totalPages);
+                    page++;
+
+                    // Rate limit
+                    if (page < totalPages) {
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
+                }
+
+                log(`Done! Got ${allResults.length} attendees`);
+                showStatus(`Success! Downloaded ${allResults.length} attendees for "${name}"`, 'success');
+                downloadCSV(allResults, name);
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`);
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+            }
         }
 
-        function parseAttendee(item, bucket, countryKey) {
-            return {
-                uuid: item.uuid || '',
-                first_name: item.name || '',
-                last_name: item.surname || '',
-                full_name: `${item.name || ''} ${item.surname || ''}`.trim(),
-                job_title: item.position || '',
-                company_name: item.company || '',
-                bucket: bucket,
-                country: COUNTRY_NAMES[countryKey] || countryKey,
-                profile_url: item.uuid ? `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid}` : '',
-                scraped_at: new Date().toISOString()
-            };
-        }
-
-        function downloadCSV(data) {
+        function downloadCSV(data, filterName) {
             if (data.length === 0) {
-                alert('No data to export');
+                alert('No data to download');
                 return;
             }
 
             const headers = Object.keys(data[0]);
-            const csvContent = [
+            const csv = [
                 headers.join(','),
                 ...data.map(row =>
                     headers.map(h => {
-                        let val = row[h] || '';
-                        val = String(val).replace(/"/g, '""');
-                        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-                            val = `"${val}"`;
-                        }
-                        return val;
+                        let v = String(row[h] || '').replace(/"/g, '""');
+                        return v.includes(',') || v.includes('"') ? `"${v}"` : v;
                     }).join(',')
                 )
             ].join('\n');
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
+            const a = document.createElement('a');
             const date = new Date().toISOString().split('T')[0];
-            link.href = url;
-            link.download = `mwc_attendees_${date}.csv`;
-            link.click();
+            const safeName = filterName.replace(/[^a-z0-9]/gi, '_');
+            a.href = url;
+            a.download = `mwc_${safeName}_${date}.csv`;
+            a.click();
             URL.revokeObjectURL(url);
-        }
-
-        async function testConnection() {
-            const token = document.getElementById('token').value.trim();
-            if (!token) {
-                showStatus('Please enter your JWT token first', true);
-                return;
-            }
-
-            showStatus('Testing connection...');
-
-            try {
-                // Simple test with US + one filter
-                const result = await fetchPage(token, ["1244"], "932", 0);
-                showStatus(`Connected! Found ${result.totalElements} US Systems Integrators.`);
-            } catch (error) {
-                showStatus(`Connection failed: ${error.message}`, true);
-            }
-        }
-
-        async function startScrape() {
-            if (isRunning) return;
-
-            const token = document.getElementById('token').value.trim();
-            if (!token) {
-                showStatus('Please enter your JWT token', true);
-                return;
-            }
-
-            const bucketKey = document.getElementById('bucket').value;
-            const countryKey = document.getElementById('countries').value;
-            const filters = BUCKETS[bucketKey];
-            const countryCode = COUNTRIES[countryKey];
-
-            // Setup UI
-            isRunning = true;
-            allAttendees = [];
-            startTime = Date.now();
-            document.getElementById('scrapeBtn').disabled = true;
-            document.getElementById('scrapeBtn').textContent = 'Scraping...';
-            document.getElementById('progress').style.display = 'block';
-            document.getElementById('stats').style.display = 'grid';
-            document.getElementById('log').style.display = 'block';
-            document.getElementById('log').innerHTML = '';
-
-            log(`Starting scrape: bucket=${bucketKey}, country=${COUNTRY_NAMES[countryKey]}`);
-            log(`Filter codes: ${filters.join(', ')}`);
-            log(`Country code: ${countryCode}`);
-
-            try {
-                // First request to get total
-                log('Fetching first page...');
-                const firstPage = await fetchPage(token, filters, countryCode, 0);
-                const totalElements = firstPage.totalElements;
-                const totalPages = firstPage.totalPages;
-
-                log(`Found ${totalElements} attendees across ${totalPages} pages`);
-
-                if (totalElements === 0) {
-                    log('No attendees found with these filters');
-                    showStatus('No attendees found with these filters', true);
-                    return;
-                }
-
-                // Process first page
-                for (const item of firstPage.content) {
-                    allAttendees.push(parseAttendee(item, bucketKey, countryKey));
-                }
-                updateStats(allAttendees.length, 1);
-                updateProgress(1, totalPages, `Page 1/${totalPages}`);
-
-                // Fetch remaining pages
-                for (let page = 1; page < totalPages; page++) {
-                    await new Promise(r => setTimeout(r, 1000)); // Rate limit: 1 second
-
-                    log(`Fetching page ${page + 1}/${totalPages}...`);
-                    const pageData = await fetchPage(token, filters, countryCode, page);
-
-                    for (const item of pageData.content) {
-                        allAttendees.push(parseAttendee(item, bucketKey, countryKey));
-                    }
-
-                    updateStats(allAttendees.length, page + 1);
-                    updateProgress(page + 1, totalPages, `Page ${page + 1}/${totalPages}`);
-                }
-
-                log(`Scraping complete! Total: ${allAttendees.length} attendees`);
-                log('Downloading CSV...');
-                showStatus(`Success! Downloaded ${allAttendees.length} attendees.`);
-
-                downloadCSV(allAttendees);
-
-                log('Done! CSV downloaded.');
-
-            } catch (error) {
-                log(`ERROR: ${error.message}`, true);
-                showStatus(`Error: ${error.message}`, true);
-            } finally {
-                isRunning = false;
-                document.getElementById('scrapeBtn').disabled = false;
-                document.getElementById('scrapeBtn').textContent = 'Start Scraping';
-            }
         }
     </script>
 </body>
