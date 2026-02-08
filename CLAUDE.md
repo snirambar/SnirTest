@@ -1,128 +1,252 @@
-# CLAUDE.md - AI Assistant Guidelines for SnirTest
+# CLAUDE.md - MWC Barcelona Attendee Scraper
 
-This file provides guidance for AI assistants (like Claude) working with this repository.
+## Project Purpose
 
-## Repository Overview
+Scrape MWC Barcelona 2026 attendees by bucket and country filters. Store in SQLite database.
 
-**Repository:** SnirTest
-**Owner:** snirambar
-**Status:** New project (initial setup)
+---
+
+## Quick Commands
+
+```bash
+# Install
+pip install requests
+
+# Test API connection
+python run_scraper.py test --token "JWT_TOKEN"
+
+# Scrape all buckets, all countries
+python run_scraper.py scrape-all --token "JWT_TOKEN"
+
+# Scrape one bucket
+python run_scraper.py scrape --token "JWT_TOKEN" --bucket partners
+
+# Scrape one country
+python run_scraper.py scrape-all --token "JWT_TOKEN" --countries "UNITED STATES"
+
+# View stats
+python run_scraper.py stats
+
+# Export to CSV
+python run_scraper.py export --output attendees.csv
+
+# Show new prospects (today)
+python run_scraper.py new
+```
+
+---
+
+## JWT Token
+
+The user must provide a JWT token from their MWC Barcelona session.
+
+**How to get it:**
+1. Log into https://www.mwcbarcelona.com/mymwc/search
+2. Open DevTools (F12) → Network tab
+3. Apply any filter on the page
+4. Click the `search` request → Headers
+5. Copy the `Jemex-Authorization` value (starts with `eyJ...`)
+
+**Token expires every ~4 hours.**
+
+---
+
+## Filter Buckets
+
+### Partners
+```bash
+python run_scraper.py scrape --token "TOKEN" --bucket partners
+```
+Codes: `1244, 1272, 1273, 1246`
+- Systems Integrator, Cloud Services, Software Development, Consultancy
+
+### Technical
+```bash
+python run_scraper.py scrape --token "TOKEN" --bucket technical
+```
+Codes: `1221, 1228, 1230, 1237, 1240, 1308`
+- Technical/Engineering, R&D, Software Dev, Government, Data Analytics, Enterprise IT
+
+### Product/Innovation
+```bash
+python run_scraper.py scrape --token "TOKEN" --bucket product_innovation
+```
+Codes: `1222, 1225, 1226, 1236, 1237, 2625`
+- Strategy, Product Management, Customer Service, Operations, Innovation
+
+---
+
+## Countries
+
+### Available
+| Country | Code |
+|---------|------|
+| United States | 932 |
+| Canada | 738 |
+| Israel | 811 |
+| United Kingdom | 777 |
+| Germany | 757 |
+| France | 775 |
+| Spain | 768 |
+| Italy | 813 |
+| Netherlands | 837 |
+| Sweden | 770 |
+| Switzerland | 772 |
+| Belgium | 725 |
+| Austria | 719 |
+| Denmark | 752 |
+| Norway | 843 |
+| Finland | 756 |
+| Ireland | 810 |
+| Portugal | 762 |
+| Poland | 761 |
+
+### Country Groups
+```bash
+--countries north_america   # US, Canada
+--countries israel          # Israel
+--countries europe          # All European countries
+--countries all             # All countries
+```
+
+---
+
+## API Reference
+
+### Endpoint
+```
+POST https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search
+```
+
+### Headers
+```
+Content-Type: application/json
+Jemex-Authorization: {JWT_TOKEN}
+```
+
+### Request Body
+```json
+{
+  "random": false,
+  "keyword": "",
+  "page": 0,
+  "filterExclusiveInterests": ["1244"],
+  "filterEventRegister": ["28"],
+  "filterCountries": ["932"]
+}
+```
+
+### Response
+```json
+{
+  "content": [...],
+  "totalElements": 1542,
+  "totalPages": 78,
+  "size": 20,
+  "number": 0
+}
+```
+
+---
 
 ## Project Structure
 
 ```
 SnirTest/
-├── CLAUDE.md          # AI assistant guidelines (this file)
-└── .git/              # Git version control
+├── run_scraper.py           # Entry point
+├── requirements.txt         # Dependencies (requests)
+├── data/
+│   └── mwc_attendees.db     # SQLite database
+└── src/mwc_scraper/
+    ├── config.py            # Filter codes & settings
+    ├── database.py          # SQLite operations
+    ├── api_client.py        # MWC API client
+    ├── scraper.py           # Scraping logic
+    └── cli.py               # CLI commands
 ```
-
-*Note: This repository is in its initial state. Update this section as the project grows.*
-
-## Development Workflow
-
-### Branch Strategy
-
-- **Main branch:** Protected, requires pull requests
-- **Feature branches:** Use descriptive names with prefixes:
-  - `feature/` - New features
-  - `fix/` - Bug fixes
-  - `docs/` - Documentation updates
-  - `refactor/` - Code refactoring
-  - `claude/` - AI-assisted development branches
-
-### Git Conventions
-
-1. **Commit messages:** Use clear, descriptive messages
-   - Start with a verb (Add, Fix, Update, Remove, Refactor)
-   - Keep the first line under 72 characters
-   - Add details in the body if needed
-
-2. **Pull requests:**
-   - Provide a clear description of changes
-   - Reference any related issues
-   - Ensure all tests pass before requesting review
-
-## Code Style Guidelines
-
-*To be defined as the project evolves. Common conventions to consider:*
-
-- Use consistent indentation (spaces vs tabs)
-- Follow language-specific style guides
-- Write self-documenting code with meaningful names
-- Add comments for complex logic only
-
-## Testing
-
-*Testing framework and conventions to be established.*
-
-## Build & Run
-
-*Build and run instructions to be added when code is introduced.*
-
-## AI Assistant Instructions
-
-When working with this repository, AI assistants should:
-
-### Do
-
-- Read existing code before making modifications
-- Follow established patterns and conventions in the codebase
-- Write clean, maintainable code
-- Make focused, atomic commits
-- Update documentation when making significant changes
-- Run tests before committing (when available)
-- Ask for clarification when requirements are ambiguous
-
-### Don't
-
-- Over-engineer solutions beyond what's requested
-- Add unnecessary dependencies
-- Make changes unrelated to the current task
-- Skip reading files before editing them
-- Commit sensitive information (API keys, credentials, etc.)
-- Force push to shared branches
-- Create files unnecessarily when editing existing ones works
-
-### Security Considerations
-
-- Never commit secrets, API keys, or credentials
-- Validate and sanitize user inputs
-- Be aware of OWASP top 10 vulnerabilities
-- Use parameterized queries for database operations
-- Escape output appropriately to prevent XSS
-
-## Common Tasks
-
-### Adding a New Feature
-
-1. Create a feature branch from main
-2. Implement the feature with tests
-3. Update relevant documentation
-4. Create a pull request with clear description
-
-### Fixing a Bug
-
-1. Identify and understand the root cause
-2. Create a fix branch
-3. Write a test that reproduces the bug
-4. Implement the fix
-5. Verify all tests pass
-6. Create a pull request
-
-## Environment Setup
-
-*Environment setup instructions to be added as the project develops.*
-
-## Dependencies
-
-*Project dependencies to be documented here.*
-
-## Additional Resources
-
-- [Project Wiki](#) - *To be created*
-- [Issue Tracker](#) - *To be set up*
-- [CI/CD Pipeline](#) - *To be configured*
 
 ---
 
-*Last updated: 2026-01-27*
+## Database
+
+### Location
+```
+data/mwc_attendees.db
+```
+
+### Prospects Table
+| Field | Description |
+|-------|-------------|
+| uuid | Unique MWC ID |
+| full_name | First + Last name |
+| job_title | Position |
+| company_name | Company |
+| bucket | Filter bucket |
+| country | Country |
+| mwc_profile_url | Profile link |
+| first_seen_at | When scraped |
+| status | new, qualified, contacted, etc. |
+
+### Companies Table
+| Field | Description |
+|-------|-------------|
+| name | Company name |
+| name_normalized | Lowercase, trimmed |
+| domain | Company domain (for enrichment) |
+| enriched_at | When enriched |
+
+---
+
+## Error Handling
+
+| Error | Meaning | Solution |
+|-------|---------|----------|
+| 401 | Token expired | Get new JWT token |
+| 403 | Not authenticated | Log into MWC first |
+| Empty results | No matches | Check filter codes |
+| Connection error | Network issue | Check internet |
+
+---
+
+## Usage Examples
+
+### Scrape US Partners (first page only - for testing)
+```bash
+python run_scraper.py scrape --token "TOKEN" --bucket partners --countries "UNITED STATES" --max-pages 1
+```
+
+### Scrape All Israel Attendees
+```bash
+python run_scraper.py scrape-all --token "TOKEN" --countries israel
+```
+
+### Export Partners to CSV
+```bash
+python run_scraper.py export --bucket partners --output partners.csv
+```
+
+### Show Today's New Prospects
+```bash
+python run_scraper.py new
+```
+
+---
+
+## Notes for Claude
+
+1. **Never hardcode JWT tokens** - always require from user
+2. **Rate limiting** - 1 second delay between API requests
+3. **Deduplication** - by UUID, won't add duplicates
+4. **Company caching** - creates company records for future enrichment
+5. **Incremental scraping** - run daily to get only new attendees
+
+---
+
+## Future Projects (Separate)
+
+See `docs/FUTURE_ROADMAP.md`:
+- Company enrichment (Apollo API)
+- LinkedIn enrichment
+- AI qualification
+- Messaging automation
+- Web dashboard
