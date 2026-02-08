@@ -32,6 +32,7 @@
             margin-bottom: 15px;
         }
         textarea { height: 80px; font-family: monospace; font-size: 12px; }
+        .btn-row { display: flex; gap: 10px; }
         button {
             background: #007bff;
             color: white;
@@ -40,10 +41,12 @@
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
-            width: 100%;
+            flex: 1;
         }
         button:hover { background: #0056b3; }
         button:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-test { background: #6c757d; flex: 0 0 auto; }
+        .btn-test:hover { background: #545b62; }
         .progress {
             background: #e9ecef;
             border-radius: 4px;
@@ -74,6 +77,7 @@
             overflow-y: auto;
             display: none;
         }
+        .log.error-log { color: #ff6b6b; }
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -99,8 +103,9 @@
         }
         .help ol { margin: 10px 0 0 20px; padding: 0; }
         .help li { margin: 5px 0; }
-        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .status { padding: 10px; border-radius: 4px; margin-bottom: 15px; display: none; }
+        .status.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; display: block; }
+        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; display: block; }
     </style>
 </head>
 <body>
@@ -119,13 +124,14 @@
         </ol>
     </div>
 
+    <div id="status" class="status"></div>
+
     <div class="section">
         <label for="token">JWT Token</label>
         <textarea id="token" placeholder="Paste your Jemex-Authorization token here (starts with eyJ...)"></textarea>
 
         <label for="bucket">Filter Bucket</label>
         <select id="bucket">
-            <option value="all">All Buckets</option>
             <option value="partners">Partners (System Integrators, Cloud, Software Dev, Consultancy)</option>
             <option value="technical">Technical (Engineering, R&D, Software Dev, Data Analytics)</option>
             <option value="product_innovation">Product/Innovation (Strategy, Product Mgmt, Operations)</option>
@@ -133,16 +139,31 @@
 
         <label for="countries">Countries</label>
         <select id="countries">
-            <option value="all">All Countries</option>
-            <option value="north_america">North America (US, Canada)</option>
+            <option value="us">United States</option>
             <option value="israel">Israel</option>
-            <option value="europe">Europe (UK, Germany, France, etc.)</option>
-            <option value="us">United States only</option>
-            <option value="uk">United Kingdom only</option>
-            <option value="germany">Germany only</option>
+            <option value="uk">United Kingdom</option>
+            <option value="germany">Germany</option>
+            <option value="france">France</option>
+            <option value="canada">Canada</option>
+            <option value="spain">Spain</option>
+            <option value="italy">Italy</option>
+            <option value="netherlands">Netherlands</option>
+            <option value="sweden">Sweden</option>
+            <option value="switzerland">Switzerland</option>
+            <option value="belgium">Belgium</option>
+            <option value="austria">Austria</option>
+            <option value="denmark">Denmark</option>
+            <option value="norway">Norway</option>
+            <option value="finland">Finland</option>
+            <option value="ireland">Ireland</option>
+            <option value="portugal">Portugal</option>
+            <option value="poland">Poland</option>
         </select>
 
-        <button id="scrapeBtn" onclick="startScrape()">Start Scraping</button>
+        <div class="btn-row">
+            <button class="btn-test" onclick="testConnection()">Test</button>
+            <button id="scrapeBtn" onclick="startScrape()">Start Scraping</button>
+        </div>
     </div>
 
     <div class="progress" id="progress">
@@ -167,7 +188,7 @@
     <div class="log" id="log"></div>
 
     <script>
-        // Filter codes
+        // Filter codes - CONFIRMED from MWC website
         const BUCKETS = {
             partners: ["1244", "1272", "1273", "1246"],
             technical: ["1221", "1228", "1230", "1237", "1240", "1308"],
@@ -175,39 +196,47 @@
         };
 
         const COUNTRIES = {
-            us: ["932"],
-            canada: ["738"],
-            israel: ["811"],
-            uk: ["777"],
-            germany: ["757"],
-            france: ["775"],
-            spain: ["768"],
-            italy: ["813"],
-            netherlands: ["837"],
-            sweden: ["770"],
-            switzerland: ["772"],
-            belgium: ["725"],
-            austria: ["719"],
-            denmark: ["752"],
-            norway: ["843"],
-            finland: ["756"],
-            ireland: ["810"],
-            portugal: ["762"],
-            poland: ["761"]
+            us: "932",
+            canada: "738",
+            israel: "811",
+            uk: "777",
+            germany: "757",
+            france: "775",
+            spain: "768",
+            italy: "813",
+            netherlands: "837",
+            sweden: "770",
+            switzerland: "772",
+            belgium: "725",
+            austria: "719",
+            denmark: "752",
+            norway: "843",
+            finland: "756",
+            ireland: "810",
+            portugal: "762",
+            poland: "761"
         };
 
-        const COUNTRY_GROUPS = {
-            north_america: [...COUNTRIES.us, ...COUNTRIES.canada],
-            israel: COUNTRIES.israel,
-            europe: [
-                ...COUNTRIES.uk, ...COUNTRIES.germany, ...COUNTRIES.france,
-                ...COUNTRIES.spain, ...COUNTRIES.italy, ...COUNTRIES.netherlands,
-                ...COUNTRIES.sweden, ...COUNTRIES.switzerland, ...COUNTRIES.belgium,
-                ...COUNTRIES.austria, ...COUNTRIES.denmark, ...COUNTRIES.norway,
-                ...COUNTRIES.finland, ...COUNTRIES.ireland, ...COUNTRIES.portugal,
-                ...COUNTRIES.poland
-            ],
-            all: Object.values(COUNTRIES).flat()
+        const COUNTRY_NAMES = {
+            us: "United States",
+            canada: "Canada",
+            israel: "Israel",
+            uk: "United Kingdom",
+            germany: "Germany",
+            france: "France",
+            spain: "Spain",
+            italy: "Italy",
+            netherlands: "Netherlands",
+            sweden: "Sweden",
+            switzerland: "Switzerland",
+            belgium: "Belgium",
+            austria: "Austria",
+            denmark: "Denmark",
+            norway: "Norway",
+            finland: "Finland",
+            ireland: "Ireland",
+            portugal: "Portugal",
+            poland: "Poland"
         };
 
         const API_URL = "https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search";
@@ -216,10 +245,17 @@
         let allAttendees = [];
         let startTime;
 
-        function log(message) {
+        function showStatus(message, isError = false) {
+            const el = document.getElementById('status');
+            el.textContent = message;
+            el.className = 'status ' + (isError ? 'error' : 'success');
+        }
+
+        function log(message, isError = false) {
             const logEl = document.getElementById('log');
             const time = new Date().toLocaleTimeString();
-            logEl.innerHTML += `[${time}] ${message}\n`;
+            const color = isError ? '#ff6b6b' : '#0f0';
+            logEl.innerHTML += `<span style="color:${color}">[${time}] ${message}</span>\n`;
             logEl.scrollTop = logEl.scrollHeight;
         }
 
@@ -236,20 +272,18 @@
             document.getElementById('statTime').textContent = elapsed + 's';
         }
 
-        async function fetchPage(token, filters, countries, page) {
+        async function fetchPage(token, filters, countryCode, page) {
+            // Build request body - one filter at a time, one country at a time
             const body = {
                 random: false,
                 keyword: "",
                 page: page,
-                filterEventRegister: ["28"]
+                filterEventRegister: ["28"],
+                filterExclusiveInterests: filters,
+                filterCountries: [countryCode]
             };
 
-            if (filters.length > 0) {
-                body.filterExclusiveInterests = filters;
-            }
-            if (countries.length > 0) {
-                body.filterCountries = countries;
-            }
+            console.log('Request body:', JSON.stringify(body, null, 2));
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -261,16 +295,21 @@
             });
 
             if (!response.ok) {
+                const text = await response.text();
+                console.error('API Response:', response.status, text);
                 if (response.status === 401) {
-                    throw new Error('Token expired. Please get a new JWT token.');
+                    throw new Error('Token expired. Please get a new JWT token from DevTools.');
                 }
-                throw new Error(`API error: ${response.status}`);
+                if (response.status === 500) {
+                    throw new Error('Server error (500). Try a different filter combination or get a fresh token.');
+                }
+                throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
             }
 
             return response.json();
         }
 
-        function parseAttendee(item, bucket, countryName) {
+        function parseAttendee(item, bucket, countryKey) {
             return {
                 uuid: item.uuid || '',
                 first_name: item.name || '',
@@ -279,7 +318,7 @@
                 job_title: item.position || '',
                 company_name: item.company || '',
                 bucket: bucket,
-                country: countryName,
+                country: COUNTRY_NAMES[countryKey] || countryKey,
                 profile_url: item.uuid ? `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid}` : '',
                 scraped_at: new Date().toISOString()
             };
@@ -297,7 +336,6 @@
                 ...data.map(row =>
                     headers.map(h => {
                         let val = row[h] || '';
-                        // Escape quotes and wrap in quotes if contains comma
                         val = String(val).replace(/"/g, '""');
                         if (val.includes(',') || val.includes('"') || val.includes('\n')) {
                             val = `"${val}"`;
@@ -317,38 +355,37 @@
             URL.revokeObjectURL(url);
         }
 
+        async function testConnection() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                showStatus('Please enter your JWT token first', true);
+                return;
+            }
+
+            showStatus('Testing connection...');
+
+            try {
+                // Simple test with US + one filter
+                const result = await fetchPage(token, ["1244"], "932", 0);
+                showStatus(`Connected! Found ${result.totalElements} US Systems Integrators.`);
+            } catch (error) {
+                showStatus(`Connection failed: ${error.message}`, true);
+            }
+        }
+
         async function startScrape() {
             if (isRunning) return;
 
             const token = document.getElementById('token').value.trim();
             if (!token) {
-                alert('Please enter your JWT token');
+                showStatus('Please enter your JWT token', true);
                 return;
             }
 
-            const bucketSelect = document.getElementById('bucket').value;
-            const countrySelect = document.getElementById('countries').value;
-
-            // Get filters
-            let filters = [];
-            let bucketName = bucketSelect;
-            if (bucketSelect === 'all') {
-                filters = [...BUCKETS.partners, ...BUCKETS.technical, ...BUCKETS.product_innovation];
-                bucketName = 'all';
-            } else {
-                filters = BUCKETS[bucketSelect] || [];
-            }
-
-            // Get countries
-            let countries = [];
-            let countryName = countrySelect;
-            if (countrySelect === 'all') {
-                countries = COUNTRY_GROUPS.all;
-            } else if (COUNTRY_GROUPS[countrySelect]) {
-                countries = COUNTRY_GROUPS[countrySelect];
-            } else if (COUNTRIES[countrySelect]) {
-                countries = COUNTRIES[countrySelect];
-            }
+            const bucketKey = document.getElementById('bucket').value;
+            const countryKey = document.getElementById('countries').value;
+            const filters = BUCKETS[bucketKey];
+            const countryCode = COUNTRIES[countryKey];
 
             // Setup UI
             isRunning = true;
@@ -361,14 +398,14 @@
             document.getElementById('log').style.display = 'block';
             document.getElementById('log').innerHTML = '';
 
-            log(`Starting scrape: bucket=${bucketName}, countries=${countrySelect}`);
-            log(`Filters: ${filters.join(', ')}`);
-            log(`Country codes: ${countries.join(', ')}`);
+            log(`Starting scrape: bucket=${bucketKey}, country=${COUNTRY_NAMES[countryKey]}`);
+            log(`Filter codes: ${filters.join(', ')}`);
+            log(`Country code: ${countryCode}`);
 
             try {
                 // First request to get total
                 log('Fetching first page...');
-                const firstPage = await fetchPage(token, filters, countries, 0);
+                const firstPage = await fetchPage(token, filters, countryCode, 0);
                 const totalElements = firstPage.totalElements;
                 const totalPages = firstPage.totalPages;
 
@@ -376,25 +413,26 @@
 
                 if (totalElements === 0) {
                     log('No attendees found with these filters');
+                    showStatus('No attendees found with these filters', true);
                     return;
                 }
 
                 // Process first page
                 for (const item of firstPage.content) {
-                    allAttendees.push(parseAttendee(item, bucketName, countrySelect));
+                    allAttendees.push(parseAttendee(item, bucketKey, countryKey));
                 }
                 updateStats(allAttendees.length, 1);
                 updateProgress(1, totalPages, `Page 1/${totalPages}`);
 
                 // Fetch remaining pages
                 for (let page = 1; page < totalPages; page++) {
-                    await new Promise(r => setTimeout(r, 1000)); // Rate limit
+                    await new Promise(r => setTimeout(r, 1000)); // Rate limit: 1 second
 
                     log(`Fetching page ${page + 1}/${totalPages}...`);
-                    const pageData = await fetchPage(token, filters, countries, page);
+                    const pageData = await fetchPage(token, filters, countryCode, page);
 
                     for (const item of pageData.content) {
-                        allAttendees.push(parseAttendee(item, bucketName, countrySelect));
+                        allAttendees.push(parseAttendee(item, bucketKey, countryKey));
                     }
 
                     updateStats(allAttendees.length, page + 1);
@@ -403,14 +441,15 @@
 
                 log(`Scraping complete! Total: ${allAttendees.length} attendees`);
                 log('Downloading CSV...');
+                showStatus(`Success! Downloaded ${allAttendees.length} attendees.`);
 
                 downloadCSV(allAttendees);
 
                 log('Done! CSV downloaded.');
 
             } catch (error) {
-                log(`ERROR: ${error.message}`);
-                alert(`Error: ${error.message}`);
+                log(`ERROR: ${error.message}`, true);
+                showStatus(`Error: ${error.message}`, true);
             } finally {
                 isRunning = false;
                 document.getElementById('scrapeBtn').disabled = false;
