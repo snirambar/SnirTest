@@ -3,281 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWC Barcelona Attendee Scraper</title>
+    <title>MWC Scraper</title>
     <style>
         * { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        h1 { color: #333; margin-bottom: 10px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
-        .section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-            font-family: monospace;
-            height: 60px;
-            margin-bottom: 15px;
-        }
-        .help {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-        .help ol { margin: 10px 0 0 20px; padding: 0; }
-        .help li { margin: 5px 0; }
-
-        /* Button Grid */
-        h3 { margin: 20px 0 10px 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .scrape-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: left;
-        }
-        .scrape-btn:hover { background: #0056b3; }
-        .scrape-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .scrape-btn.country { background: #28a745; }
-        .scrape-btn.country:hover { background: #1e7e34; }
-        .scrape-btn.interest { background: #6f42c1; }
-        .scrape-btn.interest:hover { background: #5a32a3; }
-
-        /* Status */
-        .status {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 14px;
-        }
-        .status.show { display: block; }
-        .status.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-        .status.info { background: #cce5ff; border: 1px solid #b8daff; color: #004085; }
-
-        /* Progress */
-        .progress {
-            background: #e9ecef;
-            border-radius: 4px;
-            height: 30px;
-            margin: 15px 0;
-            overflow: hidden;
-            display: none;
-        }
-        .progress.show { display: block; }
-        .progress-bar {
-            background: #28a745;
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Log */
-        .log {
-            background: #1e1e1e;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            height: 150px;
-            overflow-y: auto;
-            display: none;
-        }
-        .log.show { display: block; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 1000px; margin: 20px auto; padding: 20px; background: #f5f5f5; }
+        h1 { margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 20px; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { font-weight: 600; display: block; margin-bottom: 5px; }
+        textarea { width: 100%; height: 50px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 11px; margin-bottom: 10px; }
+        h3 { margin: 15px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+        button { padding: 10px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; text-align: left; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .country { background: #28a745; }
+        .country:hover { background: #1e7e34; }
+        .partner { background: #6f42c1; }
+        .partner:hover { background: #5a32a3; }
+        .technical { background: #007bff; }
+        .technical:hover { background: #0056b3; }
+        .product { background: #fd7e14; }
+        .product:hover { background: #e36100; }
+        #status { padding: 10px; border-radius: 4px; margin-bottom: 10px; display: none; }
+        #status.show { display: block; }
+        #status.info { background: #cce5ff; color: #004085; }
+        #status.success { background: #d4edda; color: #155724; }
+        #status.error { background: #f8d7da; color: #721c24; }
+        #progress { background: #e9ecef; height: 25px; border-radius: 4px; margin-bottom: 10px; display: none; overflow: hidden; }
+        #progress.show { display: block; }
+        #progressBar { background: #28a745; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; transition: width 0.3s; }
+        #log { background: #1a1a1a; color: #0f0; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 11px; height: 120px; overflow-y: auto; display: none; }
+        #log.show { display: block; }
+        .help { background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-    <h1>MWC Barcelona Attendee Scraper</h1>
-    <p class="subtitle">Click a button to scrape that specific filter. ONE filter per scrape (matches how MWC works).</p>
+    <h1>MWC Barcelona Scraper</h1>
+    <p class="subtitle">One button = one filter. Click to scrape and download CSV.</p>
 
     <div class="help">
-        <strong>How to get your JWT Token:</strong>
-        <ol>
-            <li>Go to <a href="https://www.mwcbarcelona.com/mymwc/search" target="_blank">mwcbarcelona.com/mymwc/search</a></li>
-            <li>Open DevTools (Cmd+Option+I)</li>
-            <li>Go to Network tab</li>
-            <li>Apply any filter on the page</li>
-            <li>Click the <code>search</code> request → Headers</li>
-            <li>Copy the <code>Jemex-Authorization</code> value</li>
-        </ol>
+        <strong>Get JWT Token:</strong> MWC Search → DevTools (Cmd+Option+I) → Network → Apply filter → Click "search" → Headers → Copy "Jemex-Authorization"
     </div>
 
     <div class="section">
-        <label for="token">JWT Token (paste here first)</label>
-        <textarea id="token" placeholder="Paste your Jemex-Authorization token here..."></textarea>
-
-        <div id="status" class="status"></div>
-        <div id="progress" class="progress"><div id="progressBar" class="progress-bar">0%</div></div>
-        <div id="log" class="log"></div>
+        <label>JWT Token</label>
+        <textarea id="token" placeholder="Paste token here..."></textarea>
+        <div id="status"></div>
+        <div id="progress"><div id="progressBar"></div></div>
+        <div id="log"></div>
     </div>
 
     <div class="section">
-        <h3>🌍 Scrape by COUNTRY (all attendees from that country)</h3>
-        <div class="btn-grid" id="countryButtons"></div>
+        <h3>🌍 COUNTRIES</h3>
+        <div class="grid" id="countries"></div>
 
-        <h3>💼 Scrape by INTEREST - Partners</h3>
-        <div class="btn-grid" id="partnerButtons"></div>
+        <h3>💼 PARTNERS (Company Main Activity)</h3>
+        <div class="grid" id="partners"></div>
 
-        <h3>🔧 Scrape by INTEREST - Technical</h3>
-        <div class="btn-grid" id="technicalButtons"></div>
+        <h3>🔧 TECHNICAL (Area of Responsibility)</h3>
+        <div class="grid" id="technical"></div>
 
-        <h3>💡 Scrape by INTEREST - Product/Innovation</h3>
-        <div class="btn-grid" id="productButtons"></div>
+        <h3>💡 PRODUCT/INNOVATION (Area of Responsibility)</h3>
+        <div class="grid" id="product"></div>
     </div>
 
     <script>
-        // EXACT codes from MWC website
-        const COUNTRIES = {
-            "Israel": "811",
-            "United States": "932",
-            "United Kingdom": "777",
-            "Germany": "757",
-            "France": "775",
-            "Spain": "768",
-            "Canada": "738",
-            "Italy": "813",
-            "Netherlands": "837",
-            "Sweden": "770",
-            "Switzerland": "772",
-            "Belgium": "725"
+        // CORRECT CODES from MWC website payload inspection
+        const FILTERS = {
+            countries: {
+                "Israel": "803",
+                "United States": "932",
+                "United Kingdom": "777",
+                "Germany": "757",
+                "France": "775",
+                "Spain": "768",
+                "Canada": "738",
+                "Italy": "813",
+                "Netherlands": "837",
+                "Sweden": "770",
+                "Switzerland": "772"
+            },
+            partners: {
+                "Systems Integrator": "1244",
+                "Cloud Services": "1272",
+                "Software Development": "1273",
+                "Consultancy": "1246"
+            },
+            technical: {
+                "Technical/Engineering": "1221",
+                "R&D": "1228",
+                "Software Dev": "1230",
+                "Data & Analytics": "1240",
+                "Enterprise IT": "1308",
+                "Client/Customer Service": "1226"
+            },
+            product: {
+                "Strategy": "1222",
+                "Product Management": "1225",
+                "Operations": "1236",
+                "Innovation": "2625"
+            }
         };
 
-        const PARTNERS = {
-            "Systems Integrator": "1244",
-            "Cloud Services": "1272",
-            "Software Development": "1273",
-            "Consultancy": "1246"
-        };
+        const API = "https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search";
+        let running = false;
 
-        const TECHNICAL = {
-            "Technical/Engineering": "1221",
-            "R&D": "1228",
-            "Software Dev": "1230",
-            "Data & Analytics": "1240",
-            "Enterprise IT": "1308"
-        };
+        // Build buttons
+        Object.entries(FILTERS).forEach(([group, items]) => {
+            const container = document.getElementById(group);
+            const btnClass = group === 'countries' ? 'country' :
+                            group === 'partners' ? 'partner' :
+                            group === 'technical' ? 'technical' : 'product';
+            const filterKey = group === 'countries' ? 'filterCountries' : 'filterExclusiveInterests';
 
-        const PRODUCT = {
-            "Strategy": "1222",
-            "Product Management": "1225",
-            "Operations": "1236",
-            "Innovation": "2625"
-        };
-
-        const API_URL = "https://bonacms-api.firabarcelona.com/profile/v1/gsmawebteam/28/search";
-        let isRunning = false;
-
-        // Create buttons on load
-        document.addEventListener('DOMContentLoaded', () => {
-            createButtons('countryButtons', COUNTRIES, 'country', 'filterCountries');
-            createButtons('partnerButtons', PARTNERS, 'interest', 'filterExclusiveInterests');
-            createButtons('technicalButtons', TECHNICAL, 'interest', 'filterExclusiveInterests');
-            createButtons('productButtons', PRODUCT, 'interest', 'filterExclusiveInterests');
-        });
-
-        function createButtons(containerId, items, type, filterKey) {
-            const container = document.getElementById(containerId);
-            for (const [name, code] of Object.entries(items)) {
+            Object.entries(items).forEach(([name, code]) => {
                 const btn = document.createElement('button');
-                btn.className = `scrape-btn ${type}`;
+                btn.className = btnClass;
                 btn.textContent = name;
                 btn.onclick = () => scrape(name, code, filterKey);
                 container.appendChild(btn);
-            }
-        }
+            });
+        });
 
-        function showStatus(msg, type = 'info') {
+        function status(msg, type = 'info') {
             const el = document.getElementById('status');
             el.textContent = msg;
-            el.className = `status show ${type}`;
+            el.className = 'show ' + type;
         }
 
         function log(msg) {
             const el = document.getElementById('log');
-            el.classList.add('show');
+            el.className = 'show';
             el.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
             el.scrollTop = el.scrollHeight;
         }
 
-        function updateProgress(current, total) {
+        function progress(current, total) {
             const el = document.getElementById('progress');
             const bar = document.getElementById('progressBar');
-            el.classList.add('show');
+            el.className = 'show';
             const pct = Math.round((current / total) * 100);
             bar.style.width = pct + '%';
-            bar.textContent = `${current}/${total} pages`;
+            bar.textContent = `${current}/${total}`;
         }
 
         async function scrape(name, code, filterKey) {
-            if (isRunning) {
-                alert('Already scraping. Please wait.');
-                return;
-            }
+            if (running) return alert('Wait for current scrape to finish');
 
             const token = document.getElementById('token').value.trim();
-            if (!token) {
-                showStatus('Please paste your JWT token first!', 'error');
-                return;
-            }
+            if (!token) return status('Paste your JWT token first!', 'error');
 
-            isRunning = true;
+            running = true;
             document.getElementById('log').innerHTML = '';
-            showStatus(`Scraping: ${name}...`, 'info');
-            log(`Starting scrape for: ${name} (code: ${code})`);
+            status(`Scraping: ${name}...`, 'info');
+            log(`Starting: ${name} (code: ${code})`);
 
-            const allResults = [];
+            const results = [];
             let page = 0;
-            let totalPages = 1;
+            let hasMore = true;
 
             try {
-                while (page < totalPages) {
-                    // Build request - ONLY ONE FILTER, exactly like MWC website
+                while (hasMore) {
+                    // EXACT format from MWC website - NO filterEventRegister!
                     const body = {
                         random: false,
                         keyword: "",
-                        page: page,
-                        filterEventRegister: ["28"]
+                        page: page
                     };
                     body[filterKey] = [code];
 
-                    log(`Fetching page ${page + 1}...`);
-                    console.log('Request:', JSON.stringify(body));
+                    log(`Page ${page}...`);
 
-                    const response = await fetch(API_URL, {
+                    const resp = await fetch(API, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -286,81 +183,88 @@
                         body: JSON.stringify(body)
                     });
 
-                    if (!response.ok) {
-                        if (response.status === 401) throw new Error('Token expired - get a new one');
-                        if (response.status === 500) throw new Error('Server error 500 - try a different filter or refresh token');
-                        throw new Error(`API error: ${response.status}`);
+                    if (!resp.ok) {
+                        if (resp.status === 401) throw new Error('Token expired - get new one');
+                        throw new Error(`API error: ${resp.status}`);
                     }
 
-                    const data = await response.json();
+                    const data = await resp.json();
+                    console.log('Response:', data);
+
+                    // Handle BOTH response formats
+                    let items = [];
+                    let total = 0;
+
+                    if (data.content) {
+                        // Old format
+                        items = data.content;
+                        total = data.totalElements || 0;
+                        hasMore = page < (data.totalPages || 1) - 1;
+                    } else if (data.responseData && data.responseData.result) {
+                        // New format from screenshot
+                        items = data.responseData.result;
+                        total = data.elements || items.length;
+                        hasMore = items.length === 20; // Assume 20 per page
+                    } else {
+                        log('Unknown response format');
+                        console.log('Full response:', data);
+                        hasMore = false;
+                    }
 
                     if (page === 0) {
-                        totalPages = data.totalPages || 1;
-                        log(`Found ${data.totalElements} total attendees (${totalPages} pages)`);
+                        log(`Found ~${total} attendees`);
                     }
 
-                    // Process results
-                    for (const item of data.content || []) {
-                        allResults.push({
-                            uuid: item.uuid || '',
-                            first_name: item.name || '',
-                            last_name: item.surname || '',
-                            full_name: `${item.name || ''} ${item.surname || ''}`.trim(),
-                            job_title: item.position || '',
-                            company: item.company || '',
-                            filter_used: name,
-                            profile_url: `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid}`,
-                            scraped_at: new Date().toISOString()
+                    // Parse results - handle both field naming conventions
+                    for (const item of items) {
+                        results.push({
+                            uuid: item.uuid || item.userId || '',
+                            first_name: item.name || item.firstName || '',
+                            last_name: item.surname || item.lastName || '',
+                            full_name: `${item.name || item.firstName || ''} ${item.surname || item.lastName || ''}`.trim(),
+                            job_title: item.position || item.jobTitle || '',
+                            company: item.company || item.companyName || '',
+                            town: item.town || '',
+                            filter: name,
+                            profile_url: `https://www.mwcbarcelona.com/mymwc/profile/${item.uuid || item.userId}`,
+                            scraped: new Date().toISOString()
                         });
                     }
 
-                    updateProgress(page + 1, totalPages);
+                    progress(results.length, Math.max(total, results.length));
                     page++;
 
-                    // Rate limit
-                    if (page < totalPages) {
-                        await new Promise(r => setTimeout(r, 1000));
-                    }
+                    if (hasMore) await new Promise(r => setTimeout(r, 1000));
                 }
 
-                log(`Done! Got ${allResults.length} attendees`);
-                showStatus(`Success! Downloaded ${allResults.length} attendees for "${name}"`, 'success');
-                downloadCSV(allResults, name);
+                log(`Done! ${results.length} attendees`);
+                status(`Success! ${results.length} attendees for "${name}"`, 'success');
 
-            } catch (error) {
-                log(`ERROR: ${error.message}`);
-                showStatus(`Error: ${error.message}`, 'error');
+                if (results.length > 0) downloadCSV(results, name);
+
+            } catch (err) {
+                log(`ERROR: ${err.message}`);
+                status(err.message, 'error');
             } finally {
-                isRunning = false;
+                running = false;
             }
         }
 
         function downloadCSV(data, filterName) {
-            if (data.length === 0) {
-                alert('No data to download');
-                return;
-            }
-
             const headers = Object.keys(data[0]);
             const csv = [
                 headers.join(','),
-                ...data.map(row =>
-                    headers.map(h => {
-                        let v = String(row[h] || '').replace(/"/g, '""');
-                        return v.includes(',') || v.includes('"') ? `"${v}"` : v;
-                    }).join(',')
-                )
+                ...data.map(row => headers.map(h => {
+                    let v = String(row[h] || '').replace(/"/g, '""');
+                    return v.includes(',') || v.includes('"') ? `"${v}"` : v;
+                }).join(','))
             ].join('\n');
 
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            const date = new Date().toISOString().split('T')[0];
-            const safeName = filterName.replace(/[^a-z0-9]/gi, '_');
-            a.href = url;
-            a.download = `mwc_${safeName}_${date}.csv`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `mwc_${filterName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-            URL.revokeObjectURL(url);
         }
     </script>
 </body>
