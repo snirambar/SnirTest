@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+
+# Real credentials live here; only .env.example is committed.
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+.vscode/
+.idea/
